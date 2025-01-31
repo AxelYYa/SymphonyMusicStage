@@ -1,5 +1,7 @@
 'use strict';
 
+console.log('📂 Archivo index.js cargado');
+
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
@@ -9,12 +11,16 @@ const env = process.env.NODE_ENV || 'development';
 const config = require(__dirname + '/../config/config.json')[env];
 const db = {};
 
+console.log('🔧 Configuración de la base de datos cargada');
+
 let sequelize;
 if (config.use_env_variable) {
   sequelize = new Sequelize(process.env[config.use_env_variable], config);
 } else {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 }
+
+console.log('🔗 Sequelize inicializado');
 
 fs
   .readdirSync(__dirname)
@@ -40,10 +46,13 @@ Object.keys(db).forEach(modelName => {
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
+console.log('📦 Módulo db exportado');
+
 module.exports = db;
 
 // Probar la conexión con la base de datos
 async function testConnection() {
+  console.log('🔍 Iniciando prueba de conexión...');
   try {
     await db.sequelize.authenticate();
     console.log('✅ Conexión exitosa con MySQL');
@@ -52,4 +61,5 @@ async function testConnection() {
   }
 }
 
+// Llamar a la función para probar la conexión
 testConnection();
