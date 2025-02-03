@@ -20,10 +20,17 @@ module.exports = (sequelize, DataTypes) => {
     precio: {
       type: DataTypes.FLOAT,
       allowNull: false
+    },
+    categoriaId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Categorias',
+        key: 'id'
+      }
     }
   }, {});
   Productos.associate = function(models) {
-    // associations can be defined here
+    Productos.belongsTo(models.Categorias, { foreignKey: 'categoriaId', as: 'categoria' });
   };
   return Productos;
 };
