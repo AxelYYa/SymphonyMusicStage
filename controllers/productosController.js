@@ -1,0 +1,17 @@
+const { Productos } = require('../models');
+
+exports.createProducto = async (req, res) => {
+  try {
+    const producto = await Productos.create({
+      nombre: req.body.nombre,
+      descripcion: req.body.descripcion,
+      categoriaId: req.body.categoriaId,
+      precio: req.body.precio,
+      stock: req.body.stock,
+      stock_minimo: req.body.stock_minimo
+    });
+    res.status(201).json(producto);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
