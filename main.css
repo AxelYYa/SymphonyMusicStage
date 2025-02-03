@@ -1,0 +1,71 @@
+.register-container {
+    background-image: url('https://img.freepik.com/vector-gratis/instrumentos-musicales-estilo-neon_18591-76796.jpg?t=st=1738562334~exp=1738565934~hmac=20766c3d2bad25152d0098a078189161af46462dea6845cca44df816591a5db2&w=1380'); /* Cambia por la ruta de tu imagen de fondo */
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .login-container {
+    background-image: url('https://img.freepik.com/vector-gratis/instrumentos-musicales-estilo-neon_18591-76796.jpg?t=st=1738562334~exp=1738565934~hmac=20766c3d2bad25152d0098a078189161af46462dea6845cca44df816591a5db2&w=1380'); /* Cambia por la ruta de tu imagen de fondo */
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .Employee-container {
+    background-image: url('https://img.freepik.com/vector-gratis/fondo-jazz-estetico-borde-instrumento-musical-vector-azul_53876-156503.jpg?t=st=1738614219~exp=1738617819~hmac=9c7838722725d597b43c2aab32d894c4b2f8d5080a87df2fdfe67834d8a64282&w=996'); /* Cambia por la ruta de tu imagen de fondo */
+    background-size: cover;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .overlay {
+    background-color: rgba(104, 98, 98, 0.5);
+    padding: 30px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    color: white;
+  }
+  
+  .form-container {
+    margin-top: 20px;
+  }
+  
+  .progress-dots {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .dot {
+    width: 10px;
+    height: 10px;
+    margin: 0 5px;
+    background-color: white;
+    border-radius: 50%;
+    transition: background-color 0.3s;
+  }
+  
+  .dot.active {
+    background-color: #007bff;
+  }
+  
+  .btn-detail {
+    background-color: #2daae1;
+    color: white;
+    border: none;
+    padding: 7px 15px;
+    border-radius: 5px;
+    font-size: 14px;
+    cursor: pointer;
+  }
