@@ -3,5 +3,7 @@ const router = express.Router();
 const pedidosController = require('../controllers/pedidosController');
 
 router.post('/', pedidosController.createPedido);
+router.put('/:id/aceptar', pedidosController.aceptarPedido);
+router.put('/:id/entregar', pedidosController.entregarPedido);
 
 module.exports = router;

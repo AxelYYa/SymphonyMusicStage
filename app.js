@@ -14,8 +14,6 @@ app.use('/categorias', categoriasRoutes);
 app.use('/productos', productosRoutes);
 app.use('/pedidos', pedidosRoutes);
 
-// Otras rutas pueden ser añadidas aquí
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en el puerto ${PORT}`);
