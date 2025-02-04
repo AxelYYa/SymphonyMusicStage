@@ -2,6 +2,7 @@
 import React from "react";
 import NavbarComponent from "/src/Components/Navbar";
 import FooterComponent from "/src/Components/Footer";
+import banner from "/src/assets/banner1.jpg";
 import '/main.css';
 
 const Home = () => {
@@ -13,7 +14,7 @@ const Home = () => {
         <section
           className="hero-section text-white text-center d-flex align-items-center justify-content-center position-relative"
           style={{
-            backgroundImage: "url('https://img.freepik.com/foto-gratis/primer-plano-cuerdas-diapason-sobre-fondo-oscuro-borroso_169016-13500.jpg?t=st=1738633523~exp=1738637123~hmac=27e976ac3a9be4681639ffef14aed4bb46454c0dd62b78477d08b84101ac37b8&w=1380')",
+            backgroundImage: "url(" + banner + ")",
             backgroundSize: "cover",
             backgroundPosition: "center",
             minHeight: "70vh",
