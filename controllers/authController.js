@@ -5,7 +5,6 @@ const { secret, expiresIn } = require('../config/jwtConfig');
 
 exports.register = async (req, res) => {
   try {
-    // Crear la persona
     const persona = await Personas.create({
       nombre: req.body.nombre,
       apellido_paterno: req.body.apellido_paterno,
@@ -13,7 +12,6 @@ exports.register = async (req, res) => {
       fecha_nacimiento: req.body.fecha_nacimiento
     });
 
-    // Crear el usuario
     const hashedPassword = bcrypt.hashSync(req.body.contraseña, 8);
     const usuario = await Usuarios.create({
       correo: req.body.correo,
@@ -29,6 +27,31 @@ exports.register = async (req, res) => {
   }
 };
 
+exports.registerEmployee = async (req, res) => {
+  try {
+    const persona = await Personas.create({
+      nombre: req.body.nombre,
+      apellido_paterno: req.body.apellido_paterno,
+      apellido_materno: req.body.apellido_materno,
+      fecha_nacimiento: req.body.fecha_nacimiento
+    });
+
+    const hashedPassword = bcrypt.hashSync(req.body.contraseña, 8);
+    const usuario = await Usuarios.create({
+      correo: req.body.correo,
+      contraseña: hashedPassword,
+      rolId: 3,
+      personaId: persona.id,
+      direccion: req.body.direccion
+    });
+
+    res.status(201).json(usuario);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+
 exports.login = async (req, res) => {
   try {
     const usuario = await Usuarios.findOne({ where: { correo: req.body.correo } });
@@ -40,7 +63,7 @@ exports.login = async (req, res) => {
     if (!passwordIsValid) {
       return res.status(401).send({
         accessToken: null,
-        message: 'Invalid Password!'
+        message: 'Contraseña Inválida, cómo mi primo Jaimico!.'
       });
     }
 

@@ -28,6 +28,19 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false
       },
+      imagepath: {
+        type: Sequelize.STRING,
+        allowNull: true
+      },
+      categoriaId: {
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'Categorias',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       allowNull: false
     },
+    imagepath: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
     categoriaId: {
       type: DataTypes.INTEGER,
       references: {

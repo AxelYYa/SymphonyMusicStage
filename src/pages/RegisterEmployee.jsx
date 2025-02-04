@@ -1,17 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '/main.css'; // Para incluir los estilos personalizados
 
-function Register() {
+function RegisterEmployee() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     nombre: '',
     apellido_paterno: '',
     apellido_materno: '',
     fecha_nacimiento: '',
-    direccion: '', // Nuevo campo agregado
+    direccion: '',
     correo: '',
     contraseña: ''
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -21,20 +24,43 @@ function Register() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (step === 1) {
       setStep(2);
     } else {
-      alert('Formulario completado');
-      console.log(formData);
+      try {
+        const response = await fetch('http://localhost:3000/auth/registerEmployee', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data);
+          navigate('/');
+        } else {
+          const errorText = await response.text();
+          try {
+            const errorData = JSON.parse(errorText);
+            alert('Error en el registro: ' + errorData.error);
+          } catch (e) {
+            alert('Error en el registro: ' + errorText);
+          }
+        }
+      } catch (error) {
+        alert('Error en el registro: ' + error.message);
+      }
     }
   };
 
   return (
     <div className="Employee-container">
       <div className="overlay">
-        <h2 className="mb-4 text-center">Registro</h2>
+        <h2 className="mb-4 text-center">Registro de Empleado</h2>
         <form onSubmit={handleSubmit} className="form-container">
           {/* Paso 1: Datos Personales */}
           {step === 1 && (
@@ -87,7 +113,6 @@ function Register() {
                 />
               </div>
 
-              {/* Nuevo campo: Dirección */}
               <div className="mb-3">
                 <label className="form-label">Dirección:</label>
                 <input
@@ -96,14 +121,12 @@ function Register() {
                   name="direccion"
                   value={formData.direccion}
                   onChange={handleChange}
-                  placeholder="Ejemplo: Calle 123, Colonia, Ciudad"
                   required
                 />
               </div>
             </>
           )}
 
-          {/* Paso 2: Datos de Cuenta */}
           {step === 2 && (
             <>
               <div className="mb-3">
@@ -137,7 +160,6 @@ function Register() {
           </button>
         </form>
 
-        {/* Puntos para el progreso */}
         <div className="progress-dots">
           <span className={`dot ${step === 1 ? 'active' : ''}`}></span>
           <span className={`dot ${step === 2 ? 'active' : ''}`}></span>
@@ -147,4 +169,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default RegisterEmployee;
