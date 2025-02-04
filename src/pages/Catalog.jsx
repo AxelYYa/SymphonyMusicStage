@@ -54,6 +54,10 @@ function Catalogo() {
     });
   };
 
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
   const filteredItems = selectedCategory
     ? items.filter(item => item.categoria && item.categoria.nombre === selectedCategory)
     : items;
