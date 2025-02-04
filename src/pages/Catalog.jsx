@@ -63,7 +63,7 @@ function Catalogo() {
           {filteredItems.map((item) => (
             <Col key={item.id}>
               <Card className="shadow-lg rounded">
-                <Card.Img variant="top" src={`http://localhost:3000/images/${item.imagepath}`} className="card-img-top" />
+                <Card.Img variant="top" src={item.imagepath} className="card-img-top" />
                 <Card.Body>
                   <Card.Title className="text-center text-uppercase">{item.nombre}</Card.Title>
                   <Card.Text className="text-center text-muted">{item.descripcion}</Card.Text>
