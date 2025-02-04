@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './src/pages/login';
+import Login from './src/pages/Login';
 import DriverPanel from './src/pages/DriverPanel';
 import Tracking from './src/pages/Tracking';
 import Catalog from './src/pages/Catalog';
@@ -9,6 +9,7 @@ import ProtectedRoute from './src/Components/ProtectedRoute';
 import PublicRoute from './src/Components/PublicRoute';
 import Home from './src/pages/Home';
 import AdminDashboard from './src/pages/Admin/AdminDashboard';
+import Cart from './src/Components/Cart';
 import '/main.css';
 
 function App() {
@@ -41,6 +42,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Catalog />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/cart"
+          element={
+            <ProtectedRoute>
+              <Cart />
             </ProtectedRoute>
           }
         />

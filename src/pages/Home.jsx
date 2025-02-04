@@ -1,13 +1,17 @@
-
-import React from "react";
-import NavbarComponent from "/src/Components/Navbar";
-import FooterComponent from "/src/Components/Footer";
+import React, { useState, useEffect } from 'react';
+import NavbarComponent from '/src/Components/Navbar';
+import FooterComponent from '/src/Components/Footer';
 import '/main.css';
 
 const Home = () => {
+  const [cart, setCart] = useState(() => {
+    const savedCart = localStorage.getItem('cart');
+    return savedCart ? JSON.parse(savedCart) : {};
+  });
+
   return (
     <div className="d-flex flex-column min-vh-100">
-      <NavbarComponent />
+      <NavbarComponent cart={cart} />
       <main className="flex-grow-1">
         {/* Sección Hero con superposición oscura */}
         <section

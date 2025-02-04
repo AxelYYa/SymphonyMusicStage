@@ -2,9 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import logo from '/src/assets/logo1.png';
 import LogoutButton from './LogoutButton';
+import { FaShoppingCart } from 'react-icons/fa';
 
-const Navbar = () => {
+const Navbar = ({ cart }) => {
   const token = localStorage.getItem('token');
+  const cartItemCount = Object.values(cart).reduce((acc, count) => acc + count, 0);
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light" style={{ backgroundColor: '#0000' }}>
@@ -31,6 +33,12 @@ const Navbar = () => {
                 ) : (
                   <Link className="btn btn-primary btn-sm text-white" to="/login" style={{ padding: '5px 10px', fontSize: '14px' }}>Iniciar Sesión</Link>
                 )}
+              </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/cart">
+                  <FaShoppingCart />
+                  {cartItemCount > 0 && <span className="badge bg-danger">{cartItemCount}</span>}
+                </Link>
               </li>
             </ul>
           </div>

@@ -1,4 +1,4 @@
-const { Productos } = require('../models');
+const { Productos, Categorias } = require('../models');
 
 exports.createProducto = async (req, res) => {
   try {
@@ -19,7 +19,13 @@ exports.createProducto = async (req, res) => {
 
 exports.getProductos = async (req, res) => {
   try {
-    const productos = await Productos.findAll();
+    const productos = await Productos.findAll({
+      include: {
+        model: Categorias,
+        as: 'categoria',
+        attributes: ['nombre']
+      }
+    });
     res.status(200).json(productos);
   } catch (error) {
     res.status(400).json({ error: error.message });
