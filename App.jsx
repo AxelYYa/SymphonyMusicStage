@@ -7,6 +7,8 @@ import Register from './src/pages/Register';
 import RegisterEmployee from './src/pages/RegisterEmployee';
 import ProtectedRoute from './src/Components/ProtectedRoute';
 import PublicRoute from './src/Components/PublicRoute';
+import Home from './src/pages/Home';
+import AdminDashboard from './src/pages/Admin/AdminDashboard';
 import '/main.css';
 
 function App() {
@@ -29,6 +31,8 @@ function App() {
             </PublicRoute>
           }
         />
+        <Route path="/" element={<Home />} />
+        <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/registroempleado" element={<RegisterEmployee />} />
         <Route path="/repartidor" element={<DriverPanel />} />
         <Route path="/seguimiento" element={<Tracking />} />
