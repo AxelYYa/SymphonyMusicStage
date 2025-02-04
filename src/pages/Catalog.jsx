@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Button, Row, Col, Form } from 'react-bootstrap';
 import NavbarComponent from '/src/Components/Navbar';
 import '/main.css';
@@ -6,15 +6,21 @@ import '/main.css';
 function Catalogo() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [cart, setCart] = useState({});
+  const [items, setItems] = useState([]);
 
-  const items = [
-    { id: 1, nombre: 'Guitarra', categoria: 'Cuerda', descripcion: 'Guitarra acústica', imagen: 'https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcT42kxyYGynr66Yb7fMHH6GF2XLrwm7Uv5RDUH3I5dEII3DQiZANLEW7ovVgXwMm95RxznGycXT0UCD1aALgqhZ99sCXDKVogcHPLWM-_wWcj3GjaXPTS4EZQ', precio: '$100' },
-    { id: 2, nombre: 'Flauta', categoria: 'Viento', descripcion: 'Flauta traversa', imagen: 'https://mx.yamaha.com/es/files/YRA901_a8a3773d61e40de2bf5d1b68532733bf.jpg?impolicy=resize&imwid=2000&imhei=2000', precio: '$150' },
-    { id: 3, nombre: 'Batería', categoria: 'Percusiones', descripcion: 'Batería acústica', imagen: 'path/to/image3.jpg', precio: '$200' },
-    { id: 4, nombre: 'Palo de tambor', categoria: 'Percusiones', descripcion: 'Palo para batería', imagen: 'path/to/image4.jpg', precio: '$20' },
-    { id: 5, nombre: 'Piano', categoria: 'Cuerda', descripcion: 'Piano digital', imagen: 'path/to/image5.jpg', precio: '$500' },
-    { id: 6, nombre: 'Afinador', categoria: 'Accesorios', descripcion: 'Afinador digital', imagen: 'path/to/image6.jpg', precio: '$30' },
-  ];
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/productos');
+        const data = await response.json();
+        setItems(data);
+      } catch (error) {
+        console.error('Error fetching productos:', error);
+      }
+    };
+
+    fetchProductos();
+  }, []);
 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
@@ -35,8 +41,7 @@ function Catalogo() {
     <div>
       <NavbarComponent />
       <div className="container my-5">
-      <h2 className="mb-4 text-center text-info fw-bold">Catálogo de Productos</h2>
-
+        <h2 className="mb-4 text-center text-info fw-bold">Catálogo de Productos</h2>
 
         <Form.Group controlId="categorySelect" className="mb-4">
           <Form.Label className="h5">Filtrar por Categoría</Form.Label>
@@ -58,12 +63,12 @@ function Catalogo() {
           {filteredItems.map((item) => (
             <Col key={item.id}>
               <Card className="shadow-lg rounded">
-                <Card.Img variant="top" src={item.imagen} className="card-img-top" />
+                <Card.Img variant="top" src={`http://localhost:3000/images/${item.imagepath}`} className="card-img-top" />
                 <Card.Body>
                   <Card.Title className="text-center text-uppercase">{item.nombre}</Card.Title>
                   <Card.Text className="text-center text-muted">{item.descripcion}</Card.Text>
                   <div className="d-flex justify-content-between align-items-center">
-                    <span className="text-primary fw-bold">{item.precio}</span>
+                    <span className="text-primary fw-bold">${item.precio}</span>
                     <div className="d-flex align-items-center">
                       <Button 
                         variant={cart[item.id] > 0 ? "primary" : "secondary"} 
@@ -75,10 +80,9 @@ function Catalogo() {
                       <Button variant="primary" onClick={() => handleQuantityChange(item.id, 1)}>+</Button>
                     </div>
                   </div>
-               
-<Button variant="primary" className="mt-3 w-100" onClick={() => handleAddToCart(item.id)}>
-Agregar al carrito
-</Button>
+                  <Button variant="primary" className="mt-3 w-100" onClick={() => handleAddToCart(item.id)}>
+                    Agregar al carrito
+                  </Button>
                 </Card.Body>
               </Card>
             </Col>
@@ -90,11 +94,3 @@ Agregar al carrito
 }
 
 export default Catalogo;
-
-
-
-
-
-
-
-

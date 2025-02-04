@@ -8,9 +8,19 @@ exports.createProducto = async (req, res) => {
       categoriaId: req.body.categoriaId,
       precio: req.body.precio,
       stock: req.body.stock,
-      stock_minimo: req.body.stock_minimo
+      stock_minimo: req.body.stock_minimo,
+      imagepath: req.body.imagepath
     });
     res.status(201).json(producto);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.getProductos = async (req, res) => {
+  try {
+    const productos = await Productos.findAll();
+    res.status(200).json(productos);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
