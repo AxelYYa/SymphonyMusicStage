@@ -18,7 +18,7 @@ exports.register = async (req, res) => {
     const usuario = await Usuarios.create({
       correo: req.body.correo,
       contraseña: hashedPassword,
-      rolId: req.body.rolId,
+      rolId: 2,
       personaId: persona.id,
       direccion: req.body.direccion
     });

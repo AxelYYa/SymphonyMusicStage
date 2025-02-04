@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import '/main.css'; // Para incluir los estilos personalizados
 
 function Register() {
@@ -13,6 +14,8 @@ function Register() {
     contraseña: ''
   });
 
+  const navigate = useNavigate();
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -21,13 +24,31 @@ function Register() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (step === 1) {
       setStep(2);
     } else {
-      alert('Formulario completado');
-      console.log(formData);
+      try {
+        const response = await fetch('http://localhost:3000/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(formData)
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          console.log(data);
+          navigate('/login');
+        } else {
+          const errorData = await response.json();
+          alert('Error en el registro: ' + errorData.error);
+        }
+      } catch (error) {
+        alert('Error en el registro: ' + error.message);
+      }
     }
   };
 

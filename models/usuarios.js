@@ -13,6 +13,22 @@ module.exports = (sequelize, DataTypes) => {
     direccion: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    rolId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Roles',
+        key: 'id'
+      }
+    },
+    personaId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'Personas',
+        key: 'id'
+      }
     }
   }, {});
   Usuarios.associate = function(models) {

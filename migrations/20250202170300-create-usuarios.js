@@ -23,7 +23,9 @@ module.exports = {
           model: 'Roles',
           key: 'id'
         },
-        allowNull: false
+        allowNull: false,
+        onUpdate: 'CASCADE',
+        onDelete: 'RESTRICT'
       },
       direccion: {
         type: Sequelize.STRING,
@@ -35,7 +37,9 @@ module.exports = {
           model: 'Personas',
           key: 'id'
         },
-        allowNull: false
+        allowNull: false,
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE'
       },
       createdAt: {
         allowNull: false,
