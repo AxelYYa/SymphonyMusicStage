@@ -9,6 +9,7 @@ import ProtectedRoute from './src/Components/ProtectedRoute';
 import Home from './src/pages/Home';
 import AdminDashboard from './src/pages/Admin/AdminDashboard';
 import CreateProductsCategories from './src/pages/Admin/CreateProductsandCategory';
+import MapComponent from './src/pages/MapPage';
 import '/main.css';
 
 function App() {
@@ -38,6 +39,7 @@ function App() {
         <Route path="/seguimiento" element={<Tracking />} />
         <Route path="/catalogo" element={<Catalog />} />
         <Route path="/admin/createproducts" element={<CreateProductsCategories />} />
+        <Route path="/map" element={<MapComponent />} />
       </Routes>
     </Router>
   );

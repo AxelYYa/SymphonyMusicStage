@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/AxelYYa/SymphonyMusicStage#readme",
   "dependencies": {
+    "@react-google-maps/api": "^2.20.5",
     "@vitejs/plugin-react": "^4.3.4",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
