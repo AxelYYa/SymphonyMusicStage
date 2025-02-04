@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Modal, Button } from 'react-bootstrap'; // Importar Modal y Button de Bootstrap
 
 const pedidosIniciales = [
   { id: 1, cliente: 'Juan Pérez', direccion: 'Av. Revolución 123', estado: 'Pendiente', detalles: 'Pedido con 3 artículos' },
@@ -8,6 +9,8 @@ const pedidosIniciales = [
 
 const DeliveryDashboard = () => {
   const [pedidos, setPedidos] = useState(pedidosIniciales);
+  const [showModal, setShowModal] = useState(false); // Estado para controlar la visibilidad del modal
+  const [detallesPedido, setDetallesPedido] = useState(''); // Estado para almacenar los detalles del pedido
 
   const aceptarPedido = (id) => {
     setPedidos(pedidos.map(pedido => 
@@ -26,7 +29,12 @@ const DeliveryDashboard = () => {
   };
 
   const verDetalles = (detalles) => {
-    alert(detalles);
+    setDetallesPedido(detalles); // Guardar los detalles del pedido
+    setShowModal(true); // Mostrar el modal
+  };
+
+  const cerrarModal = () => {
+    setShowModal(false); // Ocultar el modal
   };
 
   return (
@@ -93,6 +101,21 @@ const DeliveryDashboard = () => {
           </div>
         ))}
       </div>
+
+      {/* Modal para mostrar los detalles del pedido */}
+      <Modal show={showModal} onHide={cerrarModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Detalles del Pedido</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>{detallesPedido}</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={cerrarModal}>
+            Cerrar
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
