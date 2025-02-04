@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Row, Col, Card } from 'react-bootstrap';
+import { Button, Row, Col, Card, Modal, Form } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import NavbarComponent from '/src/Components/Navbar';
 import '/main.css';
 
@@ -9,6 +10,8 @@ function Cart() {
     return savedCart ? JSON.parse(savedCart) : {};
   });
   const [items, setItems] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [address, setAddress] = useState('');
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -40,6 +43,17 @@ function Cart() {
   }, [cart]);
 
   const cartItems = items.filter(item => cart[item.id]);
+
+  const handleShowModal = () => setShowModal(true);
+  const handleCloseModal = () => setShowModal(false);
+
+  const handleAddressChange = (e) => setAddress(e.target.value);
+
+  const handleRealizarPedido = () => {
+    // Aquí puedes manejar la lógica para realizar el pedido
+    console.log('Pedido realizado:', { cartItems, address });
+    handleCloseModal();
+  };
 
   return (
     <div>
@@ -75,7 +89,49 @@ function Cart() {
             </Col>
           ))}
         </Row>
+        {cartItems.length > 0 && (
+          <div className="text-center mt-4">
+            <Button variant="success" size="lg" onClick={handleShowModal}>
+              Realizar Compra
+            </Button>
+          </div>
+        )}
       </div>
+
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Detalles del Pedido</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {cartItems.length > 0 ? (
+            <div className="d-flex flex-column align-items-center">
+              {cartItems.map((item, index) => (
+                <div key={index} className="m-2 text-center" style={{ width: "250px" }}>
+                  <img src={item.imagepath} alt={item.nombre} className="img-fluid rounded mb-2" style={{ maxHeight: "150px", objectFit: "cover" }} />
+                  <h6>{item.nombre}</h6>
+                  <p className="text-muted">{item.descripcion}</p>
+                  <p className="text-muted">Cantidad: {cart[item.id]}</p>
+                  <p className="text-muted">Precio: ${item.precio}</p>
+                </div>
+              ))}
+              <Form.Group className="mt-3 w-100">
+                <Form.Label>Ingresa tu Dirección</Form.Label>
+                <Form.Control type="text" value={address} onChange={handleAddressChange} />
+              </Form.Group>
+            </div>
+          ) : (
+            <p className="text-center">No hay productos en el carrito.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleRealizarPedido}>
+            Realizar Pedido
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 }
