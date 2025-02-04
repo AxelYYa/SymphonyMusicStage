@@ -1,8 +1,11 @@
-import React from 'react'; 
+import React from 'react';
 import { Link } from 'react-router-dom';
 import logo from '/src/assets/logo1.png';
+import LogoutButton from './LogoutButton';
 
 const Navbar = () => {
+  const token = localStorage.getItem('token');
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light" style={{ backgroundColor: '#0000' }}>
       <div className="container-fluid">
@@ -23,7 +26,11 @@ const Navbar = () => {
                 <Link className="nav-link active" to="/">Inicio</Link>
               </li>
               <li className="nav-item">
-                <Link className="btn btn-primary btn-sm text-white" to="/login" style={{ padding: '5px 10px', fontSize: '14px' }}>Iniciar Sesión</Link>
+                {token ? (
+                  <LogoutButton />
+                ) : (
+                  <Link className="btn btn-primary btn-sm text-white" to="/login" style={{ padding: '5px 10px', fontSize: '14px' }}>Iniciar Sesión</Link>
+                )}
               </li>
             </ul>
           </div>
