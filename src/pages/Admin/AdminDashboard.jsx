@@ -85,8 +85,8 @@ const AdminDashboard = () => {
       <nav className="container mt-3">
         <ul className="nav nav-pills justify-content-center">
           <li className="nav-item"><Link to="/pedidos" className="nav-link active">Pedidos</Link></li>
-          <li className="nav-item"><Link to="/agregar-producto" className="nav-link">Agregar Productos</Link></li>
-          <li className="nav-item"><Link to="/registrar-empleado" className="nav-link">Registrar Empleados</Link></li>
+          <li className="nav-item"><Link to="/admin/createproducts" className="nav-link">Agregar Productos</Link></li>
+          <li className="nav-item"><Link to="/registroempleado" className="nav-link">Registrar Empleados</Link></li>
         </ul>
       </nav>
       <main className="flex-grow-1 container mt-4">
@@ -109,9 +109,6 @@ const AdminDashboard = () => {
                       <button className="btn btn-success btn-sm me-2" onClick={() => cambiarEstado(pedido.id, "aceptar")}>Aceptar</button>
                       <button className="btn btn-danger btn-sm" onClick={() => cambiarEstado(pedido.id, "denegar")}>Denegar</button>
                     </>
-                  )}
-                  {pedido.estado === "En Proceso" && (
-                    <button className="btn btn-primary btn-sm" onClick={() => cambiarEstado(pedido.id, "recojido")}>Recojido</button>
                   )}
                 </div>
               </div>

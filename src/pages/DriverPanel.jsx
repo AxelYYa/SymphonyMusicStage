@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button } from 'react-bootstrap'; // Importar Modal y Button de Bootstrap
+import Navbar from '/src/Components/Navbar';
+import FooterComponent from '/src/Components/Footer';
 
 const pedidosIniciales = [
   { id: 1, cliente: 'Juan Pérez', direccion: 'Av. Revolución 123', estado: 'Pendiente', detalles: 'Pedido con 3 artículos' },
@@ -39,6 +41,7 @@ const DeliveryDashboard = () => {
 
   return (
     <div className="container mt-5">
+      <Navbar />
       <h2 className="text-center mb-4">Panel de Repartidor</h2>
       <div className="row">
         {pedidos.map(pedido => (
