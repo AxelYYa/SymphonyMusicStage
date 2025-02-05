@@ -9,7 +9,6 @@ function Register() {
     apellido_paterno: '',
     apellido_materno: '',
     fecha_nacimiento: '',
-    direccion: '', // Nuevo campo agregado
     correo: '',
     contraseña: ''
   });
@@ -104,20 +103,6 @@ function Register() {
                   name="fecha_nacimiento"
                   value={formData.fecha_nacimiento}
                   onChange={handleChange}
-                  required
-                />
-              </div>
-
-              {/* Nuevo campo: Dirección */}
-              <div className="mb-3">
-                <label className="form-label">Dirección:</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  name="direccion"
-                  value={formData.direccion}
-                  onChange={handleChange}
-                  placeholder="Ejemplo: Calle 123, Colonia, Ciudad"
                   required
                 />
               </div>
