@@ -1,5 +1,5 @@
 .register-container {
-    background-image: url('https://img.freepik.com/vector-gratis/instrumentos-musicales-estilo-neon_18591-76796.jpg?t=st=1738562334~exp=1738565934~hmac=20766c3d2bad25152d0098a078189161af46462dea6845cca44df816591a5db2&w=1380'); /* Cambia por la ruta de tu imagen de fondo */
+    background-image: url('/src/assets/banner2registro.jpg'); /* Cambia por la ruta de tu imagen de fondo */
     background-size: cover;
     background-position: center;
     min-height: 100vh;
@@ -9,7 +9,7 @@
   }
 
   .login-container {
-    background-image: url('https://img.freepik.com/vector-gratis/instrumentos-musicales-estilo-neon_18591-76796.jpg?t=st=1738562334~exp=1738565934~hmac=20766c3d2bad25152d0098a078189161af46462dea6845cca44df816591a5db2&w=1380'); /* Cambia por la ruta de tu imagen de fondo */
+    background-image: url('/src/assets/banner2registro.jpg'); /* Cambia por la ruta de tu imagen de fondo */
     background-size: cover;
     background-position: center;
     min-height: 100vh;
@@ -19,7 +19,7 @@
   }
 
   .Employee-container {
-    background-image: url('https://img.freepik.com/vector-gratis/fondo-jazz-estetico-borde-instrumento-musical-vector-azul_53876-156503.jpg?t=st=1738614219~exp=1738617819~hmac=9c7838722725d597b43c2aab32d894c4b2f8d5080a87df2fdfe67834d8a64282&w=996'); /* Cambia por la ruta de tu imagen de fondo */
+    background-image: url('/src/assets/banner3.jpg'); /* Cambia por la ruta de tu imagen de fondo */
     background-size: cover;
     background-position: center;
     min-height: 100vh;
