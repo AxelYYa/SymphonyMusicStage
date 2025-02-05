@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Button } from "react-bootstrap";
+import { Link } from "react-router-dom";
 import NavbarComponent from "/src/Components/Navbar";
 import FooterComponent from "/src/Components/Footer";
 
@@ -25,10 +26,25 @@ const pedidosIniciales = [
         descripcion: "Amplificador de 50W ideal para conciertos en vivo.",
         cantidad: 2,
         precio: 300.00,
+      },
+      {
+        imagen: "https://www.guitargear.com.mx/tienda/images/detailed/47/me-90_gal_02.jpg",
+        nombre: "Pedalera de efectos Boss",
+        descripcion: "Pedalera multi-efectos para guitarra con sonidos profesionales.",
+        cantidad: 1,
+        precio: 500.00,
       }
     ],
   },
 ];
+
+const estados = ["Pendiente", "En Proceso", "En Camino", "Entregado"];
+const estadoColores = {
+  "Pendiente": "bg-warning text-white",
+  "En Proceso": "bg-primary",
+  "En Camino": "bg-warning text-white",
+  "Entregado": "bg-success",
+};
 
 const AdminDashboard = () => {
   const [pedidos, setPedidos] = useState(pedidosIniciales);
@@ -42,30 +58,38 @@ const AdminDashboard = () => {
 
   const cerrarModal = () => setShowModal(false);
 
-  const aceptarPedido = (id) => {
-    setPedidos((prev) => prev.map((p) => p.id === id ? { ...p, estado: "Aceptado" } : p));
+  const cambiarEstado = (id, accion) => {
+    setPedidos((prev) => prev.map((p) => {
+      if (p.id === id) {
+        const estadoIndex = estados.indexOf(p.estado);
+        let nuevoEstado = p.estado;
+
+        if (accion === "aceptar" && p.estado === "Pendiente") {
+          nuevoEstado = "En Proceso";
+        } else if (accion === "recojido" && p.estado === "En Proceso") {
+          nuevoEstado = "En Camino";
+        }
+
+        return { ...p, estado: nuevoEstado };
+      }
+      return p;
+    }));
   };
 
-  const rechazarPedido = (id) => {
-    setPedidos((prev) => prev.filter((p) => p.id !== id));
-  };
-
-  const asignarRepartidor = (id) => {
-    setPedidos((prev) => prev.map((p) => p.id === id ? { ...p, estado: "En Camino", repartidor: "Asignado" } : p));
-  };
-
-  const calcularTotal = (detalles) => {
-    return detalles.reduce((total, p) => total + (p.cantidad * p.precio), 0).toFixed(2);
-  };
-
-  const calcularTotalProductos = (detalles) => {
-    return detalles.reduce((total, p) => total + p.cantidad, 0);
-  };
+  const totalCantidad = detallesPedido.reduce((acc, producto) => acc + producto.cantidad, 0);
+  const totalPrecio = detallesPedido.reduce((acc, producto) => acc + (producto.cantidad * producto.precio), 0);
 
   return (
     <div className="d-flex flex-column min-vh-100 bg-light">
       <NavbarComponent />
-      <main className="flex-grow-1 container mt-5">
+      <nav className="container mt-3">
+        <ul className="nav nav-pills justify-content-center">
+          <li className="nav-item"><Link to="/pedidos" className="nav-link active">Pedidos</Link></li>
+          <li className="nav-item"><Link to="/admin/createproducts" className="nav-link">Agregar Productos</Link></li>
+          <li className="nav-item"><Link to="/registroempleado" className="nav-link">Registrar Empleados</Link></li>
+        </ul>
+      </nav>
+      <main className="flex-grow-1 container mt-4">
         <h2 className="text-center mb-4 text-primary">Panel de Administrador</h2>
         <div className="row">
           {pedidos.map((pedido) => (
@@ -74,61 +98,61 @@ const AdminDashboard = () => {
                 <div className="card-body">
                   <h5 className="card-title fw-bold text-dark">{pedido.cliente}</h5>
                   <p className="card-text text-muted">{pedido.direccion}</p>
-                  <p className="card-text">
-                    <small className="text-secondary">Fecha: {pedido.fecha}</small>
-                  </p>
+                  <p className="card-text"><small className="text-secondary">Fecha: {pedido.fecha}</small></p>
                   <p className="card-text">Repartidor: <strong>{pedido.repartidor}</strong></p>
-                  <span className={`badge py-2 px-3 ${pedido.estado === "Pendiente" ? "bg-warning text-white" : pedido.estado === "En Camino" ? "bg-primary" : "bg-success"}`}>
-                    {pedido.estado}
-                  </span>
+                  <span className={`badge py-2 px-3 ${estadoColores[pedido.estado]}`}>{pedido.estado}</span>
                 </div>
                 <div className="card-footer text-center bg-white border-0">
                   <button className="btn btn-info btn-sm me-2 text-white" onClick={() => verDetalles(pedido.detalles)}>Ver Detalles</button>
                   {pedido.estado === "Pendiente" && (
                     <>
-                      <button className="btn btn-success btn-sm me-2" onClick={() => aceptarPedido(pedido.id)}>Aceptar</button>
-                      <button className="btn btn-danger btn-sm" onClick={() => rechazarPedido(pedido.id)}>Rechazar</button>
+                      <button className="btn btn-success btn-sm me-2" onClick={() => cambiarEstado(pedido.id, "aceptar")}>Aceptar</button>
+                      <button className="btn btn-danger btn-sm" onClick={() => cambiarEstado(pedido.id, "denegar")}>Denegar</button>
                     </>
-                  )}
-                  {pedido.estado === "Aceptado" && (
-                    <button className="btn btn-primary btn-sm" onClick={() => asignarRepartidor(pedido.id)}>Asignar Repartidor</button>
                   )}
                 </div>
               </div>
             </div>
           ))}
         </div>
+        <Modal show={showModal} onHide={cerrarModal} centered size="lg">
+  <Modal.Header closeButton className="bg-primary text-white">
+    <Modal.Title>Detalles del Pedido</Modal.Title>
+  </Modal.Header>
+  <Modal.Body className="p-4 bg-light">
+    <div className="d-flex flex-wrap justify-content-start">
+      {detallesPedido.map((producto, index) => (
+        <div key={index} className="d-flex align-items-center border rounded p-3 me-3 mb-3 shadow-sm" style={{ minWidth: "250px", maxWidth: "300px", backgroundColor: "#f8f9fa" }}>
+          <img
+            src={producto.imagen}
+            alt={producto.nombre}
+            className="img-fluid rounded shadow-lg me-3"
+            style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "8px" }}
+          />
+          <div>
+            <h6 className="fw-bold text-dark m-0">{producto.nombre}</h6>
+            <p className="small text-muted m-0">{producto.descripcion}</p>
+            <p className="fw-bold m-0">Cantidad: {producto.cantidad}</p>
+            <p className="fw-bold m-0">${(producto.cantidad * producto.precio).toFixed(2)}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </Modal.Body>
+  <Modal.Footer className="bg-primary text-white">
+    <div className="w-100 d-flex justify-content-between align-items-center">
+      <div>
+        <p className="fw-bold mb-1">Total de productos: {totalCantidad}</p>
+        <p className="fw-bold mb-1">Total: ${totalPrecio.toFixed(2)}</p>
+      </div>
+      <Button variant="secondary" onClick={cerrarModal} className="text-white" style={{ backgroundColor: "#0056b3", borderColor: "#0056b3" }}>
+        Cerrar
+      </Button>
+    </div>
+  </Modal.Footer>
+</Modal>
 
-        <Modal show={showModal} onHide={cerrarModal} centered>
-          <Modal.Header closeButton>
-            <Modal.Title>Detalles del Pedido</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            {detallesPedido.length > 0 ? (
-              <div className="d-flex overflow-auto" style={{ gap: "1rem" }}>
-                {detallesPedido.map((producto, index) => (
-                  <div key={index} className="text-center" style={{ minWidth: "200px" }}>
-                    <img src={producto.imagen} alt={producto.nombre} className="img-fluid rounded shadow mb-2" style={{ maxHeight: "150px", objectFit: "cover" }} />
-                    <h6 className="fw-bold">{producto.nombre}</h6>
-                    <p className="text-muted small">{producto.descripcion}</p>
-                    <p className="fw-bold">Cantidad: {producto.cantidad}</p>
-                    <p className="fw-bold">Precio: ${producto.precio.toFixed(2)}</p>
-                    <p className="text-success fw-bold">Subtotal: ${(producto.cantidad * producto.precio).toFixed(2)}</p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-center text-muted">No hay productos en este pedido.</p>
-            )}
-          </Modal.Body>
-          <Modal.Footer className="d-flex justify-content-between align-items-center">
-            <div>
-              <p className="mb-1 fw-bold">Total de productos: {calcularTotalProductos(detallesPedido)}</p>
-              <p className="mb-0 text-success fw-bold">Total a pagar: ${calcularTotal(detallesPedido)}</p>
-            </div>
-            <Button variant="secondary" onClick={cerrarModal}>Cerrar</Button>
-          </Modal.Footer>
-        </Modal>
+
       </main>
       <FooterComponent />
     </div>
