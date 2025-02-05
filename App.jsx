@@ -11,6 +11,7 @@ import Home from './src/pages/Home';
 import AdminDashboard from './src/pages/Admin/AdminDashboard';
 import Cart from './src/Components/Cart';
 import CreateProductsCategories from './src/pages/Admin/CreateProductsandCategory';
+import OrdersHistory from './src/pages/OrdersHistory';
 import MapComponent from './src/pages/MapPage';
 import OrdersHistory from './src/pages/OrdersHistory';
 import '/main.css';
@@ -57,6 +58,7 @@ function App() {
           }
         />
         <Route path="/admin/createproducts" element={<CreateProductsCategories />} />
+        <Route path="/orderhistory" element={<OrdersHistory />} />
         <Route path="/map" element={<MapComponent />} />
         <Route
           path="/ordershistory"
