@@ -86,10 +86,10 @@ function HistorialPedidos() {
                   </Card.Text>
                   <Card.Text className="text-center fw-bold text-primary">Total: ${pedido.total}</Card.Text>
                   <div className="d-flex justify-content-around">
-                    <Button variant="info" onClick={() => abrirModal(pedido)}>
+                    <Button className="text-white" variant="info" onClick={() => abrirModal(pedido)}>
                       Ver Detalles
                     </Button>
-                    <Button variant="primary" onClick={() => abrirSeguimiento(pedido)}>
+                    <Button   variant="primary" onClick={() => abrirSeguimiento(pedido)}>
                       Ver Seguimiento
                     </Button>
                   </div>
