@@ -10,6 +10,23 @@ const Home = () => {
     return savedCart ? JSON.parse(savedCart) : {};
   });
 
+  const [productos, setProductos] = useState([]);
+
+  useEffect(() => {
+    const fetchProductos = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/productos');
+        const data = await response.json();
+        const productosFiltrados = data.filter(producto => [1, 6, 11].includes(producto.id));
+        setProductos(productosFiltrados);
+      } catch (error) {
+        console.error('Error fetching productos:', error);
+      }
+    };
+
+    fetchProductos();
+  }, []);
+
   return (
     <div className="d-flex flex-column min-vh-100">
       <NavbarComponent cart={cart} />
@@ -41,63 +58,24 @@ const Home = () => {
           <div className="container">
             <h2 className="text-center mb-5">Productos Destacados</h2>
             <div className="row">
-              {/* Tarjeta de producto 1 */}
-              <div className="col-md-4 mb-4">
-                <div className="card h-100 shadow">
-                  <img
-                    src="/guitar.jpg"
-                    className="card-img-top"
-                    alt="Guitarra"
-                  />
-                  <div className="card-body">
-                    <h5 className="card-title">Guitarras</h5>
-                    <p className="card-text">
-                      Descubre nuestra amplia variedad de guitarras acústicas y eléctricas.
-                    </p>
-                    <a href="#" className="btn btn-primary">
-                      Ver más
-                    </a>
+              {productos.map(producto => (
+                <div key={producto.id} className="col-md-4 mb-4">
+                  <div className="card shadow-lg rounded card-equal-height">
+                    <img
+                      src={producto.imagepath}
+                      className="card-img-top"
+                      alt={producto.nombre}
+                    />
+                    <div className="card-body">
+                      <h5 className="card-title text-center text-uppercase">{producto.nombre}</h5>
+                      <p className="card-text text-center text-muted">{producto.descripcion}</p>
+                      <a href="#" className="btn btn-primary w-100">
+                        Ver más
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-              {/* Tarjeta de producto 2 */}
-              <div className="col-md-4 mb-4">
-                <div className="card h-100 shadow">
-                  <img
-                    src="/piano.jpg"
-                    className="card-img-top"
-                    alt="Piano"
-                  />
-                  <div className="card-body">
-                    <h5 className="card-title">Pianos</h5>
-                    <p className="card-text">
-                      Pianos de cola y digitales para todos los niveles.
-                    </p>
-                    <a href="#" className="btn btn-primary">
-                      Ver más
-                    </a>
-                  </div>
-                </div>
-              </div>
-              {/* Tarjeta de producto 3 */}
-              <div className="col-md-4 mb-4">
-                <div className="card h-100 shadow">
-                  <img
-                    src="/drums.jpg"
-                    className="card-img-top"
-                    alt="Batería"
-                  />
-                  <div className="card-body">
-                    <h5 className="card-title">Baterías</h5>
-                    <p className="card-text">
-                      Baterías acústicas y electrónicas para profesionales y principiantes.
-                    </p>
-                    <a href="#" className="btn btn-primary">
-                      Ver más
-                    </a>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </section>

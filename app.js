@@ -4,7 +4,6 @@ const cors = require('cors');
 const path = require('path');
 const mime = require('mime-types');
 const fs = require('fs');
-const stripe = require('stripe')('sk_test_51QRqFLK2OoTqVpjs0AoH1F1DYnX8FrOKxRuc5GOMVHkYdw0anJNXk5d1A7uUdR4OXTiEmPw5rSkT4MxXuoSyF6It00rPlkJAie'); // Asegúrate de reemplazar con tu clave secreta de Stripe
 const app = express();
 const authRoutes = require('./routes/auth');
 const usuariosRoutes = require('./routes/usuarios');
@@ -33,24 +32,6 @@ app.use('/images', (req, res, next) => {
       res.send(data);
     }
   });
-});
-
-// Ruta para crear PaymentIntent
-app.post('/create-payment-intent', async (req, res) => {
-  const { amount } = req.body;
-
-  try {
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount,
-      currency: 'usd',
-    });
-
-    res.send({
-      clientSecret: paymentIntent.client_secret,
-    });
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
 });
 
 app.use('/auth', authRoutes);

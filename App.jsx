@@ -12,6 +12,7 @@ import AdminDashboard from './src/pages/Admin/AdminDashboard';
 import Cart from './src/Components/Cart';
 import CreateProductsCategories from './src/pages/Admin/CreateProductsandCategory';
 import MapComponent from './src/pages/MapPage';
+import OrdersHistory from './src/pages/OrdersHistory';
 import '/main.css';
 
 function App() {
@@ -57,6 +58,14 @@ function App() {
         />
         <Route path="/admin/createproducts" element={<CreateProductsCategories />} />
         <Route path="/map" element={<MapComponent />} />
+        <Route
+          path="/ordershistory"
+          element={
+            <ProtectedRoute>
+              <OrdersHistory />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </Router>
   );

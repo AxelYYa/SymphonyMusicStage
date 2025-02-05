@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Button, Container, Row, Col, Modal, Card } from 'react-bootstrap';
 
 function CrearProductosCategorias() {
@@ -8,29 +8,82 @@ function CrearProductosCategorias() {
     nombre: '',
     descripcion: '',
     precio: '',
-    categoria: '',
+    categoriaId: '',
+    stock: '',
+    stock_minimo: '',
+    imagepath: ''
   });
 
   const [showModalCategoria, setShowModalCategoria] = useState(false);
   const [showModalProducto, setShowModalProducto] = useState(false);
 
-  const handleAgregarCategoria = (e) => {
+  useEffect(() => {
+    const fetchCategorias = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/categorias');
+        const data = await response.json();
+        setCategorias(data);
+      } catch (error) {
+        console.error('Error fetching categorias:', error);
+      }
+    };
+
+    fetchCategorias();
+  }, []);
+
+  const handleAgregarCategoria = async (e) => {
     e.preventDefault();
     if (nombreCategoria.trim() === '') return;
-    setCategorias([...categorias, nombreCategoria]);
-    setNombreCategoria('');
-    setShowModalCategoria(false);
+
+    try {
+      const response = await fetch('http://localhost:3000/categorias', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nombre: nombreCategoria })
+      });
+
+      if (response.ok) {
+        const nuevaCategoria = await response.json();
+        setCategorias([...categorias, nuevaCategoria]);
+        setNombreCategoria('');
+        setShowModalCategoria(false);
+      } else {
+        console.error('Error al agregar categoría');
+      }
+    } catch (error) {
+      console.error('Error al agregar categoría:', error);
+    }
   };
 
   const handleChangeProducto = (e) => {
     setProducto({ ...producto, [e.target.name]: e.target.value });
   };
 
-  const handleGuardarProducto = (e) => {
+  const handleGuardarProducto = async (e) => {
     e.preventDefault();
-    console.log('Producto guardado:', producto);
-    setProducto({ nombre: '', descripcion: '', precio: '', categoria: '' });
-    setShowModalProducto(false);
+
+    try {
+      const response = await fetch('http://localhost:3000/productos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(producto)
+      });
+
+      if (response.ok) {
+        const nuevoProducto = await response.json();
+        console.log('Producto guardado:', nuevoProducto);
+        setProducto({ nombre: '', descripcion: '', precio: '', categoriaId: '', stock: '', stock_minimo: '', imagepath: '' });
+        setShowModalProducto(false);
+      } else {
+        console.error('Error al guardar producto');
+      }
+    } catch (error) {
+      console.error('Error al guardar producto:', error);
+    }
   };
 
   return (
@@ -52,7 +105,7 @@ function CrearProductosCategorias() {
               </Button>
               <ul>
                 {categorias.map((categoria, index) => (
-                  <li key={index}>{categoria}</li>
+                  <li key={index}>{categoria.nombre}</li>
                 ))}
               </ul>
             </Card.Body>
@@ -145,16 +198,52 @@ function CrearProductosCategorias() {
               <Form.Label>Categoría</Form.Label>
               <Form.Control 
                 as="select" 
-                name="categoria" 
-                value={producto.categoria} 
+                name="categoriaId" 
+                value={producto.categoriaId} 
                 onChange={handleChangeProducto} 
                 required
               >
                 <option value="">Seleccione una categoría</option>
-                {categorias.map((cat, index) => (
-                  <option key={index} value={cat}>{cat}</option>
+                {categorias.map((cat) => (
+                  <option key={cat.id} value={cat.id}>{cat.nombre}</option>
                 ))}
               </Form.Control>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Stock</Form.Label>
+              <Form.Control 
+                type="number" 
+                name="stock" 
+                value={producto.stock} 
+                onChange={handleChangeProducto} 
+                placeholder="Ej: 10" 
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Stock Mínimo</Form.Label>
+              <Form.Control 
+                type="number" 
+                name="stock_minimo" 
+                value={producto.stock_minimo} 
+                onChange={handleChangeProducto} 
+                placeholder="Ej: 2" 
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Ruta de la Imagen</Form.Label>
+              <Form.Control 
+                type="text" 
+                name="imagepath" 
+                value={producto.imagepath} 
+                onChange={handleChangeProducto} 
+                placeholder="Ej: https://example.com/imagen.jpg" 
+                required
+              />
             </Form.Group>
 
             <Button variant="primary" type="submit" className="w-100">Guardar Producto</Button>

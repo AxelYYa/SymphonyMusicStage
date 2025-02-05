@@ -4,7 +4,7 @@ import logo from '/src/assets/logo1.png';
 import LogoutButton from './LogoutButton';
 import { FaShoppingCart } from 'react-icons/fa';
 
-const Navbar = ({ cart }) => {
+const Navbar = ({ cart = {} }) => {
   const token = localStorage.getItem('token');
   const cartItemCount = Object.values(cart).reduce((acc, count) => acc + count, 0);
 
@@ -27,13 +27,20 @@ const Navbar = ({ cart }) => {
               <li className="nav-item">
                 <Link className="nav-link active" to="/">Inicio</Link>
               </li>
-              <li className="nav-item">
-                {token ? (
-                  <LogoutButton />
-                ) : (
+              {token ? (
+                <>
+                  <li className="nav-item">
+                    <Link className="nav-link" to="/ordershistory">Historial de Pedidos</Link>
+                  </li>
+                  <li className="nav-item">
+                    <LogoutButton />
+                  </li>
+                </>
+              ) : (
+                <li className="nav-item">
                   <Link className="btn btn-primary btn-sm text-white" to="/login" style={{ padding: '5px 10px', fontSize: '14px' }}>Iniciar Sesión</Link>
-                )}
-              </li>
+                </li>
+              )}
               <li className="nav-item">
                 <Link className="nav-link" to="/cart">
                   <FaShoppingCart />
