@@ -13,7 +13,6 @@ import Cart from './src/Components/Cart';
 import CreateProductsCategories from './src/pages/Admin/CreateProductsandCategory';
 import OrdersHistory from './src/pages/OrdersHistory';
 import MapComponent from './src/pages/MapPage';
-import OrdersHistory from './src/pages/OrdersHistory';
 import '/main.css';
 
 function App() {
