@@ -18,17 +18,18 @@ function Catalogo() {
       try {
         const response = await fetch('http://localhost:3000/productos');
         const data = await response.json();
-        setItems(data);
+        // Sincronizar las cantidades de los productos con el carrito
+        const updatedItems = data.map(item => ({
+          ...item,
+          quantity: cart[item.id] || 0
+        }));
+        setItems(updatedItems);
       } catch (error) {
         console.error('Error fetching productos:', error);
       }
     };
 
     fetchProductos();
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
   }, [cart]);
 
   const handleCategoryChange = (e) => {
@@ -37,22 +38,30 @@ function Catalogo() {
   };
 
   const handleQuantityChange = (id, amount) => {
-    setCart((prevCart) => {
-      const newQuantity = (prevCart[id] || 0) + amount;
-      if (newQuantity <= 0) {
-        const { [id]: _, ...rest } = prevCart;
-        return rest;
-      }
-      return { ...prevCart, [id]: newQuantity };
+    setItems((prevItems) => {
+      return prevItems.map((item) => {
+        if (item.id === id) {
+          const newQuantity = (item.quantity || 0) + amount;
+          return { ...item, quantity: Math.max(0, Math.min(newQuantity, 3)) };
+        }
+        return item;
+      });
     });
   };
 
   const handleAddToCart = (id) => {
     setCart((prevCart) => {
-      const newQuantity = (prevCart[id] || 0) + 1;
-      return { ...prevCart, [id]: newQuantity };
+      const item = items.find((item) => item.id === id);
+      if (item && item.quantity > 0) {
+        return { ...prevCart, [id]: item.quantity };
+      }
+      return prevCart;
     });
   };
+
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
 
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
@@ -103,17 +112,29 @@ function Catalogo() {
                     <span className="text-primary fw-bold">${item.precio}</span>
                     <div className="d-flex align-items-center">
                       <Button 
-                        variant={cart[item.id] > 0 ? "primary" : "secondary"} 
+                        variant={item.quantity > 0 ? "primary" : "secondary"} 
                         onClick={() => handleQuantityChange(item.id, -1)}
+                        disabled={item.quantity <= 0 || cart[item.id]}
                       >
                         -
                       </Button>
-                      <span className="mx-2 fw-bold">{cart[item.id] || 0}</span>
-                      <Button variant="primary" onClick={() => handleQuantityChange(item.id, 1)}>+</Button>
+                      <span className="mx-2 fw-bold">{item.quantity || 0}</span>
+                      <Button 
+                        variant="primary" 
+                        onClick={() => handleQuantityChange(item.id, 1)}
+                        disabled={item.quantity >= 3 || cart[item.id]}
+                      >
+                        +
+                      </Button>
                     </div>
                   </div>
-                  <Button variant="primary" className="mt-3 w-100" onClick={() => handleAddToCart(item.id)}>
-                    Agregar al carrito
+                  <Button 
+                    variant="primary" 
+                    className="mt-3 w-100" 
+                    onClick={() => handleAddToCart(item.id)}
+                    disabled={cart[item.id]}
+                  >
+                    {cart[item.id] ? 'Añadido' : 'Agregar al carrito'}
                   </Button>
                 </Card.Body>
               </Card>
