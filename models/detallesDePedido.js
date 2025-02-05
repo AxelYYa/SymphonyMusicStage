@@ -20,9 +20,11 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     tableName: 'DetallesDePedido'
   });
+
   DetallesDePedido.associate = function(models) {
     DetallesDePedido.belongsTo(models.Pedidos, { foreignKey: 'pedidoId', as: 'pedido' });
     DetallesDePedido.belongsTo(models.Productos, { foreignKey: 'productoId', as: 'producto' });
   };
+
   return DetallesDePedido;
 };

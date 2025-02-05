@@ -12,13 +12,8 @@ const DeliveryDashboard = () => {
 
   useEffect(() => {
     const fetchPedidos = async () => {
-      const token = localStorage.getItem('token');
       try {
-        const response = await fetch('http://localhost:3000/pedidos/repartidor', {
-          headers: {
-            'x-access-token': token
-          }
-        });
+        const response = await fetch('http://localhost:3000/pedidos-public');
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
@@ -40,8 +35,7 @@ const DeliveryDashboard = () => {
         headers: {
           'Content-Type': 'application/json',
           'x-access-token': token
-        },
-        body: JSON.stringify({ repartidorId: user.id })
+        }
       });
       if (response.ok) {
         const updatedPedido = await response.json();
@@ -168,7 +162,7 @@ const DeliveryDashboard = () => {
                       </button>
                     </div>
                   )}
-                  {pedido.estado_envio === 'Entregado' && pedido.repartidorId === user.id && (
+                  {pedido.estado_envio === 'Entregado' && (
                     <div className="alert alert-success mt-2">
                       Pedido entregado
                     </div>

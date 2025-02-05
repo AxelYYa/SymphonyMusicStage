@@ -10,6 +10,7 @@ const usuariosRoutes = require('./routes/usuarios');
 const categoriasRoutes = require('./routes/categorias');
 const productosRoutes = require('./routes/productos');
 const pedidosRoutes = require('./routes/pedidos');
+const pedidosPublicRouter = require('./routes/pedidosPublic');
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -39,6 +40,7 @@ app.use('/usuarios', usuariosRoutes);
 app.use('/categorias', categoriasRoutes);
 app.use('/productos', productosRoutes);
 app.use('/pedidos', pedidosRoutes);
+app.use('/pedidos-public', pedidosPublicRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
