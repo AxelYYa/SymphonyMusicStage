@@ -1,51 +1,102 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import Navbar from '/src/Components/Navbar';
 import FooterComponent from '/src/Components/Footer';
 
-const pedidosIniciales = [
-  { 
-    id: 1, 
-    cliente: 'Juan Pérez', 
-    direccion: 'Av. Revolución 123', 
-    estado: 'Listo Para Enviar', 
-    detalles: [
-      { nombre: 'Producto 1', descripcion: 'Descripción del producto 1', cantidad: 2, precio: 100, imagen: '/path/to/image.jpg' },
-      { nombre: 'Producto 2', descripcion: 'Descripción del producto 2', cantidad: 1, precio: 150, imagen: '/path/to/image.jpg' }
-    ] 
-  },
-  { 
-    id: 2, 
-    cliente: 'Ana López', 
-    direccion: 'Calle 5 de Mayo 456', 
-    estado: 'Listo Para Enviar', 
-    detalles: [
-      { nombre: 'Producto 3', descripcion: 'Descripción del producto 3', cantidad: 1, precio: 80, imagen: '/path/to/image.jpg' }
-    ]
-  }
-];
-
 const DeliveryDashboard = () => {
-  const [pedidos, setPedidos] = useState(pedidosIniciales);
+  const [pedidos, setPedidos] = useState([]);
   const [showModal, setShowModal] = useState(false); 
   const [detallesPedido, setDetallesPedido] = useState([]);
   const [totalCantidad, setTotalCantidad] = useState(0);
   const [totalPrecio, setTotalPrecio] = useState(0);
 
-  const aceptarPedido = (id) => {
-    setPedidos(pedidos.map(pedido => 
-      pedido.id === id ? { ...pedido, estado: 'En camino' } : pedido
-    ));
+  useEffect(() => {
+    const fetchPedidos = async () => {
+      const token = localStorage.getItem('token');
+      try {
+        const response = await fetch('http://localhost:3000/pedidos/repartidor', {
+          headers: {
+            'x-access-token': token
+          }
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+        setPedidos(data);
+      } catch (error) {
+        console.error('Error fetching pedidos:', error);
+      }
+    };
+
+    fetchPedidos();
+  }, []);
+
+  const aceptarPedido = async (id) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`http://localhost:3000/pedidos/${id}/aceptar`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': token
+        },
+        body: JSON.stringify({ repartidorId: user.id })
+      });
+      if (response.ok) {
+        const updatedPedido = await response.json();
+        setPedidos(pedidos.map(pedido => 
+          pedido.id === id ? updatedPedido : pedido
+        ));
+      } else {
+        console.error('Error al aceptar el pedido');
+      }
+    } catch (error) {
+      console.error('Error al aceptar el pedido:', error);
+    }
   };
 
-  const rechazarPedido = (id) => {
-    setPedidos(pedidos.filter(pedido => pedido.id !== id));
+  const rechazarPedido = async (id) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`http://localhost:3000/pedidos/${id}/revertir`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': token
+        }
+      });
+      if (response.ok) {
+        setPedidos(pedidos.filter(pedido => pedido.id !== id));
+      } else {
+        console.error('Error al rechazar el pedido');
+      }
+    } catch (error) {
+      console.error('Error al rechazar el pedido:', error);
+    }
   };
 
-  const entregarPedido = (id) => {
-    setPedidos(pedidos.map(pedido => 
-      pedido.id === id ? { ...pedido, estado: 'Entregado' } : pedido
-    ));
+  const entregarPedido = async (id) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`http://localhost:3000/pedidos/${id}/entregar`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': token
+        }
+      });
+      if (response.ok) {
+        const updatedPedido = await response.json();
+        setPedidos(pedidos.map(pedido => 
+          pedido.id === id ? updatedPedido : pedido
+        ));
+      } else {
+        console.error('Error al entregar el pedido');
+      }
+    } catch (error) {
+      console.error('Error al entregar el pedido:', error);
+    }
   };
 
   const verDetalles = (detalles) => {
@@ -68,18 +119,18 @@ const DeliveryDashboard = () => {
       <div className="container mt-5 flex-grow-1">
         <h2 className="mb-4 text-center text-info fw-bold">Panel de Repartidor</h2>
         <div className="row">
-          {pedidos.map(pedido => (
+          {Array.isArray(pedidos) && pedidos.map(pedido => (
             <div key={pedido.id} className="col-md-4 mb-4">
               <div className="card shadow-sm">
                 <div className="card-body">
                   <h5 className="card-title">{pedido.cliente}</h5>
                   <p className="card-text">{pedido.direccion}</p>
-                  <span className={`badge ${pedido.estado === 'Listo Para Enviar' ? 'bg-warning' : pedido.estado === 'En camino' ? 'bg-primary' : pedido.estado === 'Entregado' ? 'bg-success' : 'bg-danger'}`}>
-                    {pedido.estado}
+                  <span className={`badge ${pedido.estado_envio === 'En Proceso' ? 'bg-warning' : pedido.estado_envio === 'En Camino' ? 'bg-primary' : pedido.estado_envio === 'Entregado' ? 'bg-success' : 'bg-danger'}`}>
+                    {pedido.estado_envio}
                   </span>
                 </div>
                 <div className="card-footer text-center">
-                  {pedido.estado === 'Listo Para Enviar' && (
+                  {pedido.estado_envio === 'En Proceso' && (
                     <div className="d-flex justify-content-between">
                       <button
                         className="btn btn-success btn-sm"
@@ -95,7 +146,7 @@ const DeliveryDashboard = () => {
                       </button>
                     </div>
                   )}
-                  {pedido.estado === 'En camino' && (
+                  {pedido.estado_envio === 'En Camino' && (
                     <div className="d-flex justify-content-between">
                       <button
                         className="btn btn-danger btn-sm"
@@ -117,7 +168,7 @@ const DeliveryDashboard = () => {
                       </button>
                     </div>
                   )}
-                  {pedido.estado === 'Entregado' && (
+                  {pedido.estado_envio === 'Entregado' && pedido.repartidorId === user.id && (
                     <div className="alert alert-success mt-2">
                       Pedido entregado
                     </div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Row, Col, Card, Modal, Form } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import NavbarComponent from '/src/Components/Navbar';
+import MapSelector from '/src/Components/MapSelector';
 import '/main.css';
 
 function Cart() {
@@ -12,6 +12,8 @@ function Cart() {
   const [items, setItems] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [address, setAddress] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [user, setUser] = useState(null); // Estado para almacenar el usuario
 
   useEffect(() => {
     const fetchProductos = async () => {
@@ -25,6 +27,28 @@ function Cart() {
     };
 
     fetchProductos();
+  }, []);
+
+  useEffect(() => {
+    // Obtener el token del localStorage
+    const token = localStorage.getItem('token');
+    if (token) {
+      const fetchUser = async () => {
+        try {
+          const response = await fetch('http://localhost:3000/auth/me', {
+            headers: {
+              'x-access-token': token
+            }
+          });
+          const data = await response.json();
+          setUser(data);
+        } catch (error) {
+          console.error('Error fetching user:', error);
+        }
+      };
+
+      fetchUser();
+    }
   }, []);
 
   const handleQuantityChange = (id, amount) => {
@@ -49,10 +73,56 @@ function Cart() {
 
   const handleAddressChange = (e) => setAddress(e.target.value);
 
-  const handleRealizarPedido = () => {
-    // Aquí puedes manejar la lógica para realizar el pedido
-    console.log('Pedido realizado:', { cartItems, address });
-    handleCloseModal();
+  const handleRealizarPedido = async () => {
+    if (!user) {
+      alert('Debes iniciar sesión para realizar un pedido');
+      return;
+    }
+
+    const pedido = {
+      fecha_realizacion: new Date(),
+      clienteId: user.id,
+      direccion: address,
+      estado_envio: 'Pendiente',
+      estado_pago: 'Pendiente',
+      forma_pagoId: 1,
+      detalles: cartItems.map(item => ({
+        productoId: item.id,
+        cantidad: cart[item.id],
+        precio: item.precio
+      }))
+    };
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch('http://localhost:3000/pedidos', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': token
+        },
+        body: JSON.stringify(pedido)
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Pedido realizado:', data);
+        // Limpia el carrito después de realizar el pedido
+        setCart({});
+        localStorage.removeItem('cart');
+        handleCloseModal();
+      } else {
+        const errorData = await response.json();
+        console.error('Error al realizar el pedido:', errorData);
+      }
+    } catch (error) {
+      console.error('Error al realizar el pedido:', error);
+    }
+  };
+
+  const handleSelectLocation = (location) => {
+    setSelectedLocation(location);
+    setAddress(location.address);
   };
 
   return (
@@ -133,6 +203,9 @@ function Cart() {
                 <Form.Label>Ingresa tu Dirección</Form.Label>
                 <Form.Control type="text" value={address} onChange={handleAddressChange} />
               </Form.Group>
+              <div className="mt-3 w-100">
+                <MapSelector onSelectLocation={handleSelectLocation} />
+              </div>
             </div>
           ) : (
             <p className="text-center">No hay productos en el carrito.</p>

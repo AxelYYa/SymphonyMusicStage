@@ -1,31 +1,50 @@
 const { Pedidos, DetallesDePedido, sequelize } = require('../models');
 
+exports.getPedidosRepartidor = async (req, res) => {
+  try {
+    console.log('User ID:', req.userId); // Log para verificar el userId
+    const pedidos = await Pedidos.findAll({
+      where: {
+        estado_envio: ['En Proceso', 'En Camino', 'Entregado'],
+        ...(req.userId && { repartidorId: req.userId })
+      },
+      include: [{ model: DetallesDePedido, as: 'detalles' }]
+    });
+
+    res.status(200).json(pedidos);
+  } catch (error) {
+    console.error('Error fetching pedidos:', error); // Log para verificar el error
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.createPedido = async (req, res) => {
   const t = await sequelize.transaction();
   try {
+    const { direccion, estado_envio, estado_pago, forma_pagoId, detalles } = req.body;
     const pedido = await Pedidos.create({
-      fecha_realizacion: req.body.fecha_realizacion,
-      clienteId: req.body.clienteId,
-      direccion: req.body.direccion,
-      estado_envio: req.body.estado_envio,
-      estado_pago: req.body.estado_pago,
-      forma_pagoId: req.body.forma_pagoId
+      fecha_realizacion: new Date(),
+      clienteId: req.userId,
+      direccion,
+      estado_envio,
+      estado_pago,
+      forma_pagoId
     }, { transaction: t });
 
-    const detalles = req.body.detalles.map(detalle => ({
-      pedidoId: pedido.id,
-      productoId: detalle.productoId,
-      cantidad: detalle.cantidad,
-      precio: detalle.precio
-    }));
-
-    await DetallesDePedido.bulkCreate(detalles, { transaction: t });
+    for (const detalle of detalles) {
+      await DetallesDePedido.create({
+        pedidoId: pedido.id,
+        productoId: detalle.productoId,
+        cantidad: detalle.cantidad,
+        precio: detalle.precio
+      }, { transaction: t });
+    }
 
     await t.commit();
     res.status(201).json(pedido);
   } catch (error) {
     await t.rollback();
-    res.status(400).json({ error: error.message });
+    res.status(500).json({ error: error.message });
   }
 };
 

@@ -3,6 +3,18 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { secret, expiresIn } = require('../config/jwtConfig');
 
+exports.getMe = async (req, res) => {
+  try {
+    const user = await Usuarios.findByPk(req.userId);
+    if (!user) {
+      return res.status(404).send({ message: 'User Not Found.' });
+    }
+    res.status(200).send(user);
+  } catch (error) {
+    res.status(500).send({ message: error.message });
+  }
+};
+
 exports.register = async (req, res) => {
   try {
     const persona = await Personas.create({
