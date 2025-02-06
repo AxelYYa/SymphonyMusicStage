@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import Navbar from '/src/Components/Navbar';
 import FooterComponent from '/src/Components/Footer';
+import { GoogleMap, LoadScript, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
+
+const defaultCenter = { lat: 25.53845653120954, lng: -103.45535531993444 };
 
 const DeliveryDashboard = () => {
   const [pedidos, setPedidos] = useState([]);
@@ -9,6 +12,8 @@ const DeliveryDashboard = () => {
   const [detallesPedido, setDetallesPedido] = useState([]);
   const [totalCantidad, setTotalCantidad] = useState(0);
   const [totalPrecio, setTotalPrecio] = useState(0);
+  const [direccionDestino, setDireccionDestino] = useState(null);
+  const [directionsResponse, setDirectionsResponse] = useState(null);
 
   useEffect(() => {
     const fetchPedidos = async () => {
@@ -93,19 +98,41 @@ const DeliveryDashboard = () => {
     }
   };
 
-  const verDetalles = (detalles) => {
+  const verDetalles = (detalles, direccion) => {
     const cantidadTotal = detalles.reduce((acc, producto) => acc + producto.cantidad, 0);
     const precioTotal = detalles.reduce((acc, producto) => acc + (producto.cantidad * producto.precio), 0);
 
     setDetallesPedido(detalles);
     setTotalCantidad(cantidadTotal);
     setTotalPrecio(precioTotal);
+    setDireccionDestino(direccion);
     setShowModal(true);
   };
 
   const cerrarModal = () => {
     setShowModal(false);
+    setDirectionsResponse(null);
   };
+
+  useEffect(() => {
+    if (direccionDestino) {
+      const directionsService = new window.google.maps.DirectionsService();
+      directionsService.route(
+        {
+          origin: defaultCenter,
+          destination: direccionDestino,
+          travelMode: window.google.maps.TravelMode.DRIVING,
+        },
+        (result, status) => {
+          if (status === window.google.maps.DirectionsStatus.OK) {
+            setDirectionsResponse(result);
+          } else {
+            console.error(`error fetching directions ${result}`);
+          }
+        }
+      );
+    }
+  }, [direccionDestino]);
 
   return (
     <div className="d-flex flex-column" style={{ minHeight: '100vh' }}>
@@ -134,7 +161,7 @@ const DeliveryDashboard = () => {
                       </button>
                       <button
                         className="btn btn-info btn-sm text-white"
-                        onClick={() => verDetalles(pedido.detalles)}
+                        onClick={() => verDetalles(pedido.detalles, pedido.direccion)}
                       >
                         Ver Detalles
                       </button>
@@ -150,7 +177,7 @@ const DeliveryDashboard = () => {
                       </button>
                       <button
                         className="btn btn-info btn-sm text-white"
-                        onClick={() => verDetalles(pedido.detalles)}
+                        onClick={() => verDetalles(pedido.detalles, pedido.direccion)}
                       >
                         Ver Detalles
                       </button>
@@ -197,6 +224,21 @@ const DeliveryDashboard = () => {
                 </div>
               ))}
             </div>
+            {direccionDestino && (
+              <LoadScript googleMapsApiKey="AIzaSyCx4NNBGSBnu0ypvno3X4OSfXzVHRQbj1Y">
+                <GoogleMap
+                  mapContainerStyle={{ height: "400px", width: "100%" }}
+                  center={defaultCenter}
+                  zoom={10}
+                >
+                  {directionsResponse && (
+                    <DirectionsRenderer
+                      directions={directionsResponse}
+                    />
+                  )}
+                </GoogleMap>
+              </LoadScript>
+            )}
           </Modal.Body>
           <Modal.Footer className="bg-primary text-white">
             <div className="w-100 d-flex justify-content-between align-items-center">

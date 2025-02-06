@@ -1,4 +1,22 @@
-const { Pedidos, DetallesDePedido, sequelize } = require('../models');
+const { Pedidos, DetallesDePedido, Usuarios, FormasDePago, sequelize } = require('../models');
+
+exports.getAllPedidos = async (req, res) => {
+  try {
+    const pedidos = await Pedidos.findAll({
+      include: [
+        { model: DetallesDePedido, as: 'detalles' },
+        { model: Usuarios, as: 'cliente' },
+        { model: Usuarios, as: 'repartidor' }
+      ],
+      order: [['createdAt', 'DESC']]
+    });
+
+    res.status(200).json(pedidos);
+  } catch (error) {
+    console.error('Error fetching all pedidos:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 exports.getPedidosRepartidor = async (req, res) => {
   try {
