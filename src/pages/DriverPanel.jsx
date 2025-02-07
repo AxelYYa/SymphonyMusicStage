@@ -69,6 +69,29 @@ const DeliveryDashboard = () => {
     }
   };
 
+  const marcarComoEnPuerta = async (id) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`http://localhost:3000/pedidos/${id}/enpuerta`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-access-token': token
+        }
+      });
+      if (response.ok) {
+        const updatedPedido = await response.json();
+        setPedidos(pedidos.map(pedido => 
+          pedido.id === id ? updatedPedido : pedido
+        ));
+      } else {
+        console.error('Error al marcar como En Puerta');
+      }
+    } catch (error) {
+      console.error('Error al marcar como En Puerta:', error);
+    }
+  };
+
   const entregarPedido = async (id) => {
     const token = localStorage.getItem('token');
     try {
@@ -118,6 +141,8 @@ const DeliveryDashboard = () => {
         return "warning";
       case "En Camino":
         return "info";
+      case "En Puerta":
+        return "primary";
       case "Cancelado":
         return "danger";
       default:
@@ -135,7 +160,7 @@ const DeliveryDashboard = () => {
             <div key={pedido.id} className="col-md-4 mb-4">
               <div className="card shadow-sm">
                 <div className="card-body">
-                  <h5 className="card-title">{pedido.cliente.correo}</h5> {/* Asegúrate de que `pedido.cliente` sea un objeto válido */}
+                  <h5 className="card-title">{pedido.cliente?.persona ? `${pedido.cliente.persona.nombre} ${pedido.cliente.persona.apellido_paterno}` : 'Cliente desconocido'}</h5> {/* Verificación de seguridad */}
                   <p className="card-text">{pedido.direccion}</p>
                   <span className={`badge ${getEstadoColor(pedido.estado_envio)}`}>
                     {pedido.estado_envio}
@@ -176,8 +201,18 @@ const DeliveryDashboard = () => {
                         className="btn btn-primary btn-sm"
                         onClick={() => abrirSeguimiento(pedido)}
                       >
-                        Ver Seguimiento
+                        Ver Recorrido
                       </button>
+                      <button
+                        className="btn btn-warning btn-sm"
+                        onClick={() => marcarComoEnPuerta(pedido.id)}
+                      >
+                        Por Entregar
+                      </button>
+                    </div>
+                  )}
+                  {pedido.estado_envio === 'En Puerta' && (
+                    <div className="d-flex justify-content-between">
                       <button
                         className="btn btn-success btn-sm"
                         onClick={() => entregarPedido(pedido.id)}

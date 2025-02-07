@@ -1,4 +1,4 @@
-const { Pedidos, DetallesDePedido, Usuarios, Productos, sequelize } = require('../models');
+const { Pedidos, DetallesDePedido, Usuarios, Productos, Personas, sequelize } = require('../models');
 
 exports.getAllPedidos = async (req, res) => {
   try {
@@ -12,8 +12,22 @@ exports.getAllPedidos = async (req, res) => {
             as: 'producto'
           }
         },
-        { model: Usuarios, as: 'cliente' },
-        { model: Usuarios, as: 'repartidor' }
+        {
+          model: Usuarios,
+          as: 'cliente',
+          include: {
+            model: Personas,
+            as: 'persona'
+          }
+        },
+        {
+          model: Usuarios,
+          as: 'repartidor',
+          include: {
+            model: Personas,
+            as: 'persona'
+          }
+        }
       ],
       order: [['createdAt', 'DESC']]
     });
@@ -27,18 +41,58 @@ exports.getAllPedidos = async (req, res) => {
 
 exports.getPedidosRepartidor = async (req, res) => {
   try {
-    console.log('User ID:', req.userId); // Log para verificar el userId
     const pedidos = await Pedidos.findAll({
       where: {
         estado_envio: ['En Proceso', 'En Camino', 'Entregado'],
         ...(req.userId && { repartidorId: req.userId })
       },
-      include: [{ model: DetallesDePedido, as: 'detalles' }]
+      include: [
+        {
+          model: DetallesDePedido,
+          as: 'detalles',
+          include: {
+            model: Productos,
+            as: 'producto'
+          }
+        },
+        {
+          model: Usuarios,
+          as: 'cliente',
+          include: {
+            model: Personas,
+            as: 'persona'
+          }
+        },
+        {
+          model: Usuarios,
+          as: 'repartidor',
+          include: {
+            model: Personas,
+            as: 'persona'
+          }
+        }
+      ]
     });
 
     res.status(200).json(pedidos);
   } catch (error) {
-    console.error('Error fetching pedidos:', error); // Log para verificar el error
+    console.error('Error fetching pedidos:', error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.marcarComoEnPuerta = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const pedido = await Pedidos.findByPk(id);
+    if (!pedido) {
+      return res.status(404).json({ error: 'Pedido no encontrado' });
+    }
+    pedido.estado_envio = 'En Puerta';
+    await pedido.save();
+    res.status(200).json(pedido);
+  } catch (error) {
+    console.error('Error al marcar como En Puerta:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -101,25 +155,17 @@ exports.aceptarPedido = async (req, res) => {
 exports.entregarPedido = async (req, res) => {
   console.log('Solicitud para entregar pedido recibida');
   try {
-    const pedido = await Pedidos.findByPk(req.params.id);
+    const { id } = req.params;
+    const pedido = await Pedidos.findByPk(id);
     if (!pedido) {
-      console.log('Pedido no encontrado');
-      return res.status(404).json({ message: 'Pedido no encontrado' });
+      return res.status(404).json({ error: 'Pedido no encontrado' });
     }
-
-    if (pedido.estado_envio !== 'En Camino') {
-      return res.status(400).json({ message: 'El pedido no está en estado En Camino' });
-    }
-
     pedido.estado_envio = 'Entregado';
-    pedido.fecha_entrega = new Date();
     await pedido.save();
-
-    console.log('Pedido entregado:', pedido);
     res.status(200).json(pedido);
   } catch (error) {
-    console.log('Error al entregar pedido:', error);
-    res.status(400).json({ error: error.message });
+    console.error('Error al entregar el pedido:', error);
+    res.status(500).json({ error: error.message });
   }
 };
 

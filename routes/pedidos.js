@@ -10,5 +10,6 @@ router.put('/:id/procesar', pedidosController.procesarPedido);
 router.put('/:id/revertir', verifyToken, pedidosController.revertirPedido);
 router.get('/repartidor', pedidosController.getPedidosRepartidor);
 router.get('/', pedidosController.getAllPedidos);
+router.put('/:id/enpuerta', pedidosController.marcarComoEnPuerta);
 
 module.exports = router;
