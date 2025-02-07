@@ -37,7 +37,7 @@ module.exports = {
         allowNull: true
       },
       estado_envio: {
-        type: Sequelize.ENUM('Pendiente', 'En Proceso', 'En Camino', 'Entregado', 'Cancelado'),
+        type: Sequelize.ENUM('Pendiente', 'En Proceso', 'En Camino', 'En Puerta', 'Entregado', 'Cancelado'),
         allowNull: false
       },
       estado_pago: {

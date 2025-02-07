@@ -1,10 +1,17 @@
-const { Pedidos, DetallesDePedido, Usuarios, FormasDePago, sequelize } = require('../models');
+const { Pedidos, DetallesDePedido, Usuarios, Productos, sequelize } = require('../models');
 
 exports.getAllPedidos = async (req, res) => {
   try {
     const pedidos = await Pedidos.findAll({
       include: [
-        { model: DetallesDePedido, as: 'detalles' },
+        {
+          model: DetallesDePedido,
+          as: 'detalles',
+          include: {
+            model: Productos,
+            as: 'producto'
+          }
+        },
         { model: Usuarios, as: 'cliente' },
         { model: Usuarios, as: 'repartidor' }
       ],

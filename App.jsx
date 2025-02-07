@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './src/pages/Login';
+import Login from './src/pages/login';
 import DriverPanel from './src/pages/DriverPanel';
 import Tracking from './src/pages/Tracking';
 import Catalog from './src/pages/Catalog';

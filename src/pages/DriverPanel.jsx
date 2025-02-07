@@ -2,26 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'react-bootstrap';
 import Navbar from '/src/Components/Navbar';
 import FooterComponent from '/src/Components/Footer';
-import { GoogleMap, LoadScript, DirectionsService, DirectionsRenderer } from '@react-google-maps/api';
+import MapRoute from '/src/Components/MapRoute';
 
 const defaultCenter = { lat: 25.53845653120954, lng: -103.45535531993444 };
 
 const DeliveryDashboard = () => {
   const [pedidos, setPedidos] = useState([]);
   const [showModal, setShowModal] = useState(false); 
-  const [detallesPedido, setDetallesPedido] = useState([]);
-  const [totalCantidad, setTotalCantidad] = useState(0);
-  const [totalPrecio, setTotalPrecio] = useState(0);
-  const [direccionDestino, setDireccionDestino] = useState(null);
-  const [directionsResponse, setDirectionsResponse] = useState(null);
+  const [pedidoSeleccionado, setPedidoSeleccionado] = useState(null);
+  const [showSeguimiento, setShowSeguimiento] = useState(false);
 
   useEffect(() => {
     const fetchPedidos = async () => {
       try {
-        const response = await fetch('http://localhost:3000/pedidos-public');
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
+        const response = await fetch('http://localhost:3000/pedidos');
         const data = await response.json();
         setPedidos(data);
       } catch (error) {
@@ -98,41 +92,38 @@ const DeliveryDashboard = () => {
     }
   };
 
-  const verDetalles = (detalles, direccion) => {
-    const cantidadTotal = detalles.reduce((acc, producto) => acc + producto.cantidad, 0);
-    const precioTotal = detalles.reduce((acc, producto) => acc + (producto.cantidad * producto.precio), 0);
-
-    setDetallesPedido(detalles);
-    setTotalCantidad(cantidadTotal);
-    setTotalPrecio(precioTotal);
-    setDireccionDestino(direccion);
+  const verDetalles = (pedido) => {
+    setPedidoSeleccionado(pedido);
     setShowModal(true);
   };
 
   const cerrarModal = () => {
     setShowModal(false);
-    setDirectionsResponse(null);
   };
 
-  useEffect(() => {
-    if (direccionDestino) {
-      const directionsService = new window.google.maps.DirectionsService();
-      directionsService.route(
-        {
-          origin: defaultCenter,
-          destination: direccionDestino,
-          travelMode: window.google.maps.TravelMode.DRIVING,
-        },
-        (result, status) => {
-          if (status === window.google.maps.DirectionsStatus.OK) {
-            setDirectionsResponse(result);
-          } else {
-            console.error(`error fetching directions ${result}`);
-          }
-        }
-      );
+  const abrirSeguimiento = (pedido) => {
+    setPedidoSeleccionado(pedido);
+    setShowSeguimiento(true);
+  };
+
+  const cerrarSeguimiento = () => {
+    setShowSeguimiento(false);
+  };
+
+  const getEstadoColor = (estado) => {
+    switch (estado) {
+      case "Entregado":
+        return "success";
+      case "Pendiente":
+        return "warning";
+      case "En Camino":
+        return "info";
+      case "Cancelado":
+        return "danger";
+      default:
+        return "secondary";
     }
-  }, [direccionDestino]);
+  };
 
   return (
     <div className="d-flex flex-column" style={{ minHeight: '100vh' }}>
@@ -144,9 +135,9 @@ const DeliveryDashboard = () => {
             <div key={pedido.id} className="col-md-4 mb-4">
               <div className="card shadow-sm">
                 <div className="card-body">
-                  <h5 className="card-title">{pedido.cliente}</h5>
+                  <h5 className="card-title">{pedido.cliente.correo}</h5> {/* Asegúrate de que `pedido.cliente` sea un objeto válido */}
                   <p className="card-text">{pedido.direccion}</p>
-                  <span className={`badge ${pedido.estado_envio === 'En Proceso' ? 'bg-warning' : pedido.estado_envio === 'En Camino' ? 'bg-primary' : pedido.estado_envio === 'Entregado' ? 'bg-success' : 'bg-danger'}`}>
+                  <span className={`badge ${getEstadoColor(pedido.estado_envio)}`}>
                     {pedido.estado_envio}
                   </span>
                 </div>
@@ -161,7 +152,7 @@ const DeliveryDashboard = () => {
                       </button>
                       <button
                         className="btn btn-info btn-sm text-white"
-                        onClick={() => verDetalles(pedido.detalles, pedido.direccion)}
+                        onClick={() => verDetalles(pedido)}
                       >
                         Ver Detalles
                       </button>
@@ -177,9 +168,15 @@ const DeliveryDashboard = () => {
                       </button>
                       <button
                         className="btn btn-info btn-sm text-white"
-                        onClick={() => verDetalles(pedido.detalles, pedido.direccion)}
+                        onClick={() => verDetalles(pedido)}
                       >
                         Ver Detalles
+                      </button>
+                      <button
+                        className="btn btn-primary btn-sm"
+                        onClick={() => abrirSeguimiento(pedido)}
+                      >
+                        Ver Seguimiento
                       </button>
                       <button
                         className="btn btn-success btn-sm"
@@ -207,49 +204,57 @@ const DeliveryDashboard = () => {
           </Modal.Header>
           <Modal.Body className="p-4 bg-light">
             <div className="d-flex flex-wrap justify-content-start">
-              {detallesPedido.map((producto, index) => (
-                <div key={index} className="d-flex align-items-center border rounded p-3 me-3 mb-3 shadow-sm" style={{ minWidth: "250px", maxWidth: "300px", backgroundColor: "#f8f9fa" }}>
-                  <img
-                    src={producto.imagen}
-                    alt={producto.nombre}
-                    className="img-fluid rounded shadow-lg me-3"
-                    style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "8px" }}
-                  />
-                  <div>
-                    <h6 className="fw-bold text-dark m-0">{producto.nombre}</h6>
-                    <p className="small text-muted m-0">{producto.descripcion}</p>
-                    <p className="fw-bold m-0">Cantidad: {producto.cantidad}</p>
-                    <p className="fw-bold m-0">${(producto.cantidad * producto.precio).toFixed(2)}</p>
-                  </div>
+              {pedidoSeleccionado?.detalles.map((detalle, index) => (
+                <div
+                  key={index}
+                  className="d-flex align-items-center border rounded p-3 me-3 mb-3 shadow-sm"
+                  style={{ minWidth: "250px", maxWidth: "300px", backgroundColor: "#f8f9fa" }}
+                >
+                  {detalle.producto && (
+                    <>
+                      <img
+                        src={detalle.producto.imagepath}
+                        alt={detalle.producto.nombre}
+                        className="img-fluid rounded shadow-lg me-3"
+                        style={{ width: "80px", height: "80px", objectFit: "cover", borderRadius: "8px" }}
+                      />
+                      <div>
+                        <h6 className="fw-bold text-dark m-0">{detalle.producto.nombre}</h6>
+                        <p className="small text-muted m-0">{detalle.producto.descripcion}</p>
+                        <p className="fw-bold m-0">Cantidad: {detalle.cantidad}</p>
+                        <p className="fw-bold m-0">${(detalle.cantidad * detalle.precio).toFixed(2)}</p>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
-            {direccionDestino && (
-              <LoadScript googleMapsApiKey="AIzaSyCx4NNBGSBnu0ypvno3X4OSfXzVHRQbj1Y">
-                <GoogleMap
-                  mapContainerStyle={{ height: "400px", width: "100%" }}
-                  center={defaultCenter}
-                  zoom={10}
-                >
-                  {directionsResponse && (
-                    <DirectionsRenderer
-                      directions={directionsResponse}
-                    />
-                  )}
-                </GoogleMap>
-              </LoadScript>
-            )}
           </Modal.Body>
           <Modal.Footer className="bg-primary text-white">
             <div className="w-100 d-flex justify-content-between align-items-center">
               <div>
-                <p className="fw-bold mb-1">Total de productos: {totalCantidad}</p>
-                <p className="fw-bold mb-1">Total: ${totalPrecio.toFixed(2)}</p>
+                <p className="fw-bold mb-1">Total de productos: {pedidoSeleccionado?.detalles.reduce((acc, p) => acc + p.cantidad, 0)}</p>
+                <p className="fw-bold mb-1">Total: ${pedidoSeleccionado?.detalles.reduce((acc, p) => acc + (p.cantidad * p.precio), 0).toFixed(2)}</p>
               </div>
-              <Button variant="secondary" onClick={cerrarModal} className="text-white" style={{ backgroundColor: "#0056b3", borderColor: "#0056b3" }}>
+              <Button variant="secondary" onClick={cerrarModal} className="text-white">
                 Cerrar
               </Button>
             </div>
+          </Modal.Footer>
+        </Modal>
+
+        {/* Modal de Seguimiento */}
+        <Modal show={showSeguimiento} onHide={cerrarSeguimiento} centered>
+          <Modal.Header closeButton className="bg-info text-white">
+            <Modal.Title>Seguimiento del Pedido #{pedidoSeleccionado?.id}</Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="p-4 bg-light">
+            <MapRoute destination={pedidoSeleccionado?.direccion} />
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={cerrarSeguimiento}>
+              Cerrar
+            </Button>
           </Modal.Footer>
         </Modal>
       </div>
